@@ -20,8 +20,16 @@
  * Constructor sets an empty board (default 3 rows, 4 columns) and 
  * specifies it is X's turn first
 **/
-Piezas::Piezas()
+Piezas::Piezas() 
 {
+    //std::vector < std::vector<Piece> > board;
+    board.resize(3, std::vector<Piece>(4));
+    for(int i = 0; i < (int) board.size(); i++) {
+        for(int j = 0; j < (int) board[i].size(); j++) {
+            board[i][j] = Blank;
+        }
+    }
+    turn = X;
 }
 
 /**
@@ -30,6 +38,11 @@ Piezas::Piezas()
 **/
 void Piezas::reset()
 {
+    for(int i = 0; i < (int) board.size(); i++) {
+        for(int j = 0; j < (int) board[i].size(); j++) {
+            board[i][j] = Blank;
+        }
+    }
 }
 
 /**
@@ -42,7 +55,48 @@ void Piezas::reset()
 **/ 
 Piece Piezas::dropPiece(int column)
 {
-    return Blank;
+    if (column > 3 || column < 0)
+        return Invalid;
+
+    if(column >= BOARD_COLS || column < 0){
+        if(turn == X) {
+            turn = O;
+        }
+        else {
+            turn = X;
+        }
+        return Invalid;
+    }
+
+    bool locationFull = true;
+    for(int i=0; i < BOARD_ROWS; i++){
+        if(board[i][column] == Blank){
+            locationFull = false;
+        }
+    }
+
+    if(locationFull) {
+        if(turn == X){
+            turn = O;
+        }
+        else{
+            turn = X;
+        }
+        return Blank;
+    }
+
+    for(int i = 0; i < BOARD_COLS; i++){
+        if(board[i][column] == Blank){
+            board[i][column] = turn;
+            if(turn == X){
+                turn = O;
+            }
+            else{
+                turn = X;
+            }
+            return board[i][column];
+        }
+    }
 }
 
 /**
@@ -51,7 +105,15 @@ Piece Piezas::dropPiece(int column)
 **/
 Piece Piezas::pieceAt(int row, int column)
 {
-    return Blank;
+    if (row >= 3 || row < 0 || column >= 4 || column < 0) {
+        return Invalid;
+    }
+
+    if(board[row][column] == Blank) {
+        return Blank;
+    }
+
+    return board[row][column];
 }
 
 /**
@@ -65,5 +127,69 @@ Piece Piezas::pieceAt(int row, int column)
 **/
 Piece Piezas::gameState()
 {
+    int xIncrement = 0;
+    int oIncrement = 0;
+
+    int xMax = 0;
+    int oMax = 0;
+
+    for(int i = 0; i < BOARD_ROWS; i++) {
+        for(int j = 0; j < BOARD_COLS; j++) {
+            if(board[i][j] == Blank) {
+                return Invalid;
+            }
+        }
+    }
+
+    //x horizontal
+    for(int i = 0; i < BOARD_ROWS; i++) {
+        for(int j = 0; j < BOARD_COLS; j++) {
+            if(board[i][j] == X) {
+                oIncrement = 0;
+                xIncrement++;
+                if(xIncrement > xMax) {
+                    xMax = xIncrement;
+                }
+            }
+
+            if(board[i][j] == O) {
+                xIncrement = 0;
+                oIncrement++;
+                if(oIncrement > oMax){
+                     oMax = oIncrement;
+                 }
+            }
+        }
+    }
+
+    //invert
+    for(int i = 0; i < BOARD_COLS; i++){
+        oIncrement = 0;
+        xIncrement = 0;
+        for(int j = 0; j< BOARD_ROWS; j++) {
+            if(board[j][i] == X) {
+                xIncrement++;
+                oIncrement = 0;
+            if(xIncrement > xMax) {
+                xMax = xIncrement;
+            }
+        }
+            if(board[j][i] == O) {
+                xIncrement = 0;
+                oIncrement++;
+            if(oIncrement > oMax){
+                oMax = oIncrement;
+            }
+         }
+     }
+  }
+
+    if(xMax > oMax) {
+        return X;
+    } 
+    else if(oMax > xMax) {
+        return O;
+    }
+
     return Blank;
 }
