@@ -55,6 +55,7 @@ void Piezas::reset()
 **/ 
 Piece Piezas::dropPiece(int column)
 {
+    bool locationFull = true;
     if (column > 3 || column < 0)
         return Invalid;
 
@@ -68,7 +69,6 @@ Piece Piezas::dropPiece(int column)
         return Invalid;
     }
 
-    bool locationFull = true;
     for(int i=0; i < BOARD_ROWS; i++){
         if(board[i][column] == Blank){
             locationFull = false;
@@ -97,6 +97,7 @@ Piece Piezas::dropPiece(int column)
             return board[i][column];
         }
     }
+    return Blank;
 }
 
 /**
